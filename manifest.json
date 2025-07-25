@@ -1,0 +1,29 @@
+{
+    "name": "Personal File Server",
+    "short_name": "FileServer",
+    "description": "Secure cloud file storage and management system",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#00bcd4",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "favicon.ico",
+            "sizes": "16x16 32x32 48x48",
+            "type": "image/x-icon"
+        }
+    ],
+    "categories": [
+        "productivity",
+        "utilities"
+    ],
+    "lang": "en-US",
+    "dir": "ltr"
+}

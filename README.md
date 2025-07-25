@@ -23,6 +23,7 @@ A modern, secure web-based file server with Firebase authentication and a beauti
 ## Getting Started 🚀
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/rohan-rusho/FileShare.git
    cd FileShare
@@ -34,6 +35,7 @@ A modern, secure web-based file server with Firebase authentication and a beauti
    - Copy your Firebase config to `firebase-config.js`
 
 3. **Run the server**
+
    ```bash
    python -m http.server 8000
    ```
@@ -58,17 +60,20 @@ FileShare/
 ## Features Overview 📋
 
 ### Authentication System
+
 - **Login/Register**: Secure user authentication
 - **Forgot Password**: Email-based password reset
 - **Emergency Authentication**: Fallback system for testing
 
 ### File Management
+
 - **Upload**: Drag & drop or click to upload files
 - **Gallery View**: Visual file cards with previews
 - **List View**: Compact file listing
 - **File Actions**: View, download, and delete files
 
 ### User Interface
+
 - **Dark Theme**: Professional dark blue color scheme
 - **Glass Effects**: Modern backdrop-filter styling
 - **Responsive**: Mobile-first responsive design

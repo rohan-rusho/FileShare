@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal File Server</title>
+    <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml">
+    <link rel="icon" href="./favicon.ico?v=2" type="image/x-icon">
+    <link rel="apple-touch-icon" href="./favicon.svg">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#00bcd4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./main.css">
+    <style>
+        /* Force show auth screen immediately - bypass loading screen issues */
+        .loading-screen {
+            display: none !important;
+        }
+        .auth-container {
+            display: flex !important;
+        }
+        .main-container {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h2>Loading File Server...</h2>
+            <p>Please wait while we initialize your personal cloud storage</p>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- Authentication Container -->
+        <div id="auth-container" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Personal File Server
+                    </h1>
+                    <p class="auth-subtitle">Secure file storage and management</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-username" class="form-label">Username</label>
+                        <input type="text" id="login-username" class="form-input" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password" class="form-label">Password</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="auth-button">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password-link" class="forgot-password-link">
+                            <i class="fas fa-key"></i>
+                            Forgot Password?
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgot-password-form" class="auth-form hidden">
+                    <div class="forgot-password-header">
+                        <h2 class="forgot-password-title">
+                            <i class="fas fa-key"></i>
+                            Reset Password
+                        </h2>
+                        <p class="forgot-password-subtitle">Enter your username to receive a password reset email</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="reset-username" class="form-label">Username</label>
+                        <input type="text" id="reset-username" class="form-input" placeholder="Enter your username" required>
+                    </div>
+                    <button type="submit" class="auth-button">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Reset Email
+                    </button>
+                    <div class="auth-links">
+                        <a href="#" id="back-to-login-link" class="back-to-login-link">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Login
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form hidden">
+                    <div class="form-group">
+                        <label for="register-username" class="form-label">Username</label>
+                        <input type="text" id="register-username" class="form-input" placeholder="Choose a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-name" class="form-label">Your Name</label>
+                        <input type="text" id="register-name" class="form-input" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password" class="form-label">Password</label>
+                        <input type="password" id="register-password" class="form-input" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" class="form-input" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="auth-button">
+                        <i class="fas fa-user-plus"></i>
+                        Sign Up
+                    </button>
+                </form>
+
+                <div class="auth-switch">
+                    <p id="auth-switch-text">Don't have an account? <a href="#" id="auth-switch-link">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Application Container -->
+        <div id="main-container" class="main-container hidden">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="app-title">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            File Server
+                        </h1>
+                    </div>
+                    <div class="header-right">
+                        <span class="user-info">
+                            <i class="fas fa-user"></i>
+                            <span id="user-display-name">User</span>
+                        </span>
+                        <button id="logout-btn" class="header-button">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Upload Section -->
+                <section class="upload-section">
+                    <div class="upload-card">
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 class="upload-title">Drop files here or click to upload</h3>
+                            <p class="upload-subtitle">Support for images, documents, videos, audio, archives (zip, rar, 7z), code files, fonts and more • Max 50MB per file</p>
+                            <input type="file" id="file-input" class="file-input" multiple accept="*/*">
+                        </div>
+                        <div class="upload-progress" id="upload-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <p class="progress-text" id="progress-text">0%</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Controls Section -->
+                <section class="controls-section">
+                    <div class="controls-left">
+                        <div class="view-toggle">
+                            <button id="gallery-view-btn" class="view-btn active">
+                                <i class="fas fa-th"></i>
+                                Gallery
+                            </button>
+                            <button id="list-view-btn" class="view-btn">
+                                <i class="fas fa-list"></i>
+                                List
+                            </button>
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <div class="filter-group">
+                            <select id="file-filter" class="filter-select">
+                                <option value="all">All Files</option>
+                                <option value="images">Images</option>
+                                <option value="documents">Documents</option>
+                                <option value="videos">Videos</option>
+                                <option value="audio">Audio</option>
+                                <option value="applications">Applications</option>
+                                <option value="archives">Archives</option>
+                                <option value="code">Code Files</option>
+                                <option value="fonts">Fonts</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="search-group">
+                            <input type="text" id="search-input" class="search-input" placeholder="Search files...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <div class="action-group">
+                            <button id="refresh-files-btn" class="action-btn" title="Refresh Files">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Files Section -->
+                <section class="files-section">
+                    <div id="files-container" class="files-container gallery-view">
+                        <!-- Files will be dynamically inserted here -->
+                    </div>
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 class="empty-title">No files uploaded yet</h3>
+                        <p class="empty-subtitle">Start by uploading your first file</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- File Viewer Modal -->
+        <div id="file-viewer-modal" class="modal file-viewer-modal hidden">
+            <div class="modal-content file-viewer-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="viewer-file-name">File Viewer</h3>
+                    <button class="modal-close" id="file-viewer-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body file-viewer-body">
+                    <div id="file-viewer-container" class="file-viewer-container">
+                        <!-- Content will be dynamically loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-button secondary" id="download-viewed-file">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="modal-button primary" id="close-file-viewer">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Confirm Delete</h3>
+                    <button class="modal-close" id="delete-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this file? This action cannot be undone.</p>
+                    <p class="file-name" id="delete-file-name"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-button secondary" id="cancel-delete">Cancel</button>
+                    <button class="modal-button danger" id="confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container">
+            <!-- Toasts will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Include the main application script -->
+    <script type="module" src="./app.js"></script>
+    
+    <!-- Debug script for testing -->
+    <script>
+        // Add debug button for testing (only visible in development and when logged in)
+        window.addEventListener('load', () => {
+            // Add debug panel only if in development AND user is logged in
+            setTimeout(() => {
+                const isLocalOrFile = window.location.hostname === 'localhost' || window.location.protocol === 'file:';
+                const mainContainer = document.getElementById('main-container');
+                const authContainer = document.getElementById('auth-container');
+                
+                // Only show debug panel if:
+                // 1. Running locally/file
+                // 2. User is logged in (main-container is visible)
+                // 3. Auth container is hidden
+                if (isLocalOrFile && mainContainer && !mainContainer.classList.contains('hidden') && 
+                    authContainer && authContainer.classList.contains('hidden')) {
+                    
+                    const debugPanel = document.createElement('div');
+                    debugPanel.id = 'debug-panel';
+                    debugPanel.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: rgba(0,0,0,0.8);
+                        color: white;
+                        padding: 10px;
+                        border-radius: 5px;
+                        font-size: 12px;
+                        z-index: 10000;
+                        backdrop-filter: blur(8px);
+                        border: 1px solid rgba(255,255,255,0.1);
+                    `;
+                    debugPanel.innerHTML = `
+                        <div style="margin-bottom: 5px; font-weight: bold;">🔧 Debug Panel</div>
+                        <button onclick="testFirebaseSetup()" style="margin: 2px; padding: 5px; font-size: 10px; background: #ff9800; color: white; border: none; border-radius: 3px;">Setup Test</button>
+                        <button onclick="testFileUpload()" style="margin: 2px; padding: 5px; font-size: 10px; background: #4caf50; color: white; border: none; border-radius: 3px;">Test Upload</button>
+                        <button onclick="testRegistration()" style="margin: 2px; padding: 5px; font-size: 10px; background: #2196f3; color: white; border: none; border-radius: 3px;">Test Registration</button>
+                        <button onclick="showStorageRulesGuide()" style="margin: 2px; padding: 5px; font-size: 10px; background: #9c27b0; color: white; border: none; border-radius: 3px;">Storage Rules</button>
+                        <button onclick="console.clear()" style="margin: 2px; padding: 5px; font-size: 10px; background: #607d8b; color: white; border: none; border-radius: 3px;">Clear Console</button>
+                        <button onclick="document.getElementById('debug-panel').remove()" style="margin: 2px; padding: 5px; font-size: 10px; background: #f44336; color: white; border: none; border-radius: 3px;">Hide</button>
+                    `;
+                    document.body.appendChild(debugPanel);
+                }
+            }, 1000); // Wait a second for the app to initialize
+            
+            // Also check when auth state changes
+            const observer = new MutationObserver(() => {
+                const mainContainer = document.getElementById('main-container');
+                const authContainer = document.getElementById('auth-container');
+                const existingPanel = document.getElementById('debug-panel');
+                
+                if (mainContainer && !mainContainer.classList.contains('hidden') && 
+                    authContainer && authContainer.classList.contains('hidden') && 
+                    !existingPanel && 
+                    (window.location.hostname === 'localhost' || window.location.protocol === 'file:')) {
+                    
+                    // User just logged in, show debug panel
+                    setTimeout(() => {
+                        if (!document.getElementById('debug-panel')) {
+                            const debugPanel = document.createElement('div');
+                            debugPanel.id = 'debug-panel';
+                            debugPanel.style.cssText = `
+                                position: fixed;
+                                top: 10px;
+                                right: 10px;
+                                background: rgba(0,0,0,0.8);
+                                color: white;
+                                padding: 10px;
+                                border-radius: 5px;
+                                font-size: 12px;
+                                z-index: 10000;
+                                backdrop-filter: blur(8px);
+                                border: 1px solid rgba(255,255,255,0.1);
+                            `;
+                            debugPanel.innerHTML = `
+                                <div style="margin-bottom: 5px; font-weight: bold;">🔧 Debug Panel</div>
+                                <button onclick="testFirebaseSetup()" style="margin: 2px; padding: 5px; font-size: 10px; background: #ff9800; color: white; border: none; border-radius: 3px;">Setup Test</button>
+                                <button onclick="testFileUpload()" style="margin: 2px; padding: 5px; font-size: 10px; background: #4caf50; color: white; border: none; border-radius: 3px;">Test Upload</button>
+                                <button onclick="console.clear()" style="margin: 2px; padding: 5px; font-size: 10px; background: #607d8b; color: white; border: none; border-radius: 3px;">Clear Console</button>
+                                <button onclick="document.getElementById('debug-panel').remove()" style="margin: 2px; padding: 5px; font-size: 10px; background: #f44336; color: white; border: none; border-radius: 3px;">Hide</button>
+                            `;
+                            document.body.appendChild(debugPanel);
+                        }
+                    }, 500);
+                } else if (authContainer && !authContainer.classList.contains('hidden') && existingPanel) {
+                    // User logged out, hide debug panel
+                    existingPanel.remove();
+                }
+            });
+            
+            // Observe changes to the main containers
+            const mainContainer = document.getElementById('main-container');
+            const authContainer = document.getElementById('auth-container');
+            if (mainContainer) observer.observe(mainContainer, { attributes: true, attributeFilter: ['class'] });
+            if (authContainer) observer.observe(authContainer, { attributes: true, attributeFilter: ['class'] });
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="developer-credit">
+                Developed by <strong>Rohan Rusho</strong>
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/eita.rohan" target="_blank" rel="noopener noreferrer" class="social-link facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://instagram.com/rohan.rusho" target="_blank" rel="noopener noreferrer" class="social-link instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Emergency Auth Screen Display Script -->
+    <script>
+        // Force show auth screen immediately if loading screen is stuck
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Emergency auth display script running...');
+            
+            const loadingScreen = document.getElementById('loading-screen');
+            const authContainer = document.getElementById('auth-container');
+            const mainContainer = document.getElementById('main-container');
+            
+            if (loadingScreen && authContainer && mainContainer) {
+                loadingScreen.style.display = 'none';
+                authContainer.style.display = 'flex';
+                mainContainer.style.display = 'none';
+                console.log('Auth screen force-displayed successfully');
+            }
+        });
+        
+        // Additional immediate execution (no waiting for DOM)
+        if (document.readyState === 'loading') {
+            console.log('Document still loading, emergency script will wait for DOM...');
+        } else {
+            console.log('Document already loaded, executing emergency script immediately...');
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const authContainer = document.getElementById('auth-container');
+                const mainContainer = document.getElementById('main-container');
+                
+                if (loadingScreen && authContainer && mainContainer) {
+                    loadingScreen.style.display = 'none';
+                    authContainer.style.display = 'flex';
+                    mainContainer.style.display = 'none';
+                    console.log('Emergency auth screen displayed');
+                }
+            }, 100);
+        }
+    </script>
+
+    <!-- Emergency Auth Functionality Script -->
+    <script>
+        // Ensure basic auth functionality works even if main app.js fails to load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Setting up emergency auth functionality...');
+            
+            // Basic form switching functionality
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const forgotPasswordForm = document.getElementById('forgot-password-form');
+            const authSwitchLink = document.getElementById('auth-switch-link');
+            const authSwitchText = document.getElementById('auth-switch-text');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            const backToLoginLink = document.getElementById('back-to-login-link');
+
+            // Toast function
+            const showToast = (message, type = 'info') => {
+                const toastContainer = document.getElementById('toast-container');
+                if (!toastContainer) return;
+                
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icon = type === 'success' ? 'fas fa-check-circle' :
+                    type === 'error' ? 'fas fa-exclamation-circle' :
+                        type === 'warning' ? 'fas fa-exclamation-triangle' :
+                            'fas fa-info-circle';
+
+                toast.innerHTML = `
+                    <i class="toast-icon ${icon}"></i>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                toastContainer.appendChild(toast);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 5000);
+            };
+
+            // Form switching functions
+            const showForgotPasswordForm = () => {
+                console.log('Showing forgot password form');
+                if (loginForm) loginForm.classList.add('hidden');
+                if (registerForm) registerForm.classList.add('hidden');
+                if (forgotPasswordForm) forgotPasswordForm.classList.remove('hidden');
+                if (authSwitchText) authSwitchText.style.display = 'none';
+            };
+
+            const showLoginForm = () => {
+                console.log('Showing login form');
+                if (loginForm) loginForm.classList.remove('hidden');
+                if (registerForm) registerForm.classList.add('hidden');
+                if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+                if (authSwitchText) {
+                    authSwitchText.style.display = 'block';
+                    authSwitchText.innerHTML = 'Don\'t have an account? <a href="#" id="auth-switch-link">Sign up</a>';
+                    
+                    // Re-attach event listener
+                    setTimeout(() => {
+                        const newAuthSwitchLink = document.getElementById('auth-switch-link');
+                        if (newAuthSwitchLink) {
+                            newAuthSwitchLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                toggleAuthMode();
+                            });
+                        }
+                    }, 100);
+                }
+            };
+
+            const toggleAuthMode = () => {
+                const isLoginMode = loginForm && !loginForm.classList.contains('hidden');
+                
+                if (isLoginMode) {
+                    if (loginForm) loginForm.classList.add('hidden');
+                    if (registerForm) registerForm.classList.remove('hidden');
+                    if (authSwitchText) authSwitchText.innerHTML = 'Already have an account? <a href="#" id="auth-switch-link">Sign in</a>';
+                } else {
+                    if (loginForm) loginForm.classList.remove('hidden');
+                    if (registerForm) registerForm.classList.add('hidden');
+                    if (authSwitchText) authSwitchText.innerHTML = 'Don\'t have an account? <a href="#" id="auth-switch-link">Sign up</a>';
+                }
+
+                // Re-attach event listener
+                setTimeout(() => {
+                    const newAuthSwitchLink = document.getElementById('auth-switch-link');
+                    if (newAuthSwitchLink) {
+                        newAuthSwitchLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            toggleAuthMode();
+                        });
+                    }
+                }, 100);
+            };
+
+            // Emergency login handler (works without Firebase for testing)
+            const handleEmergencyLogin = (e) => {
+                e.preventDefault();
+                console.log('Emergency login handler triggered');
+                
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                
+                if (!username || !password) {
+                    showToast('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const button = e.target.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                }
+                
+                // Simulate login attempt
+                setTimeout(() => {
+                    showToast('Login functionality requires Firebase configuration. Check console for Firebase errors.', 'warning');
+                    showToast(`Attempted login for username: ${username}`, 'info');
+                    
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                    }
+                }, 1000);
+            };
+
+            // Emergency forgot password handler
+            const handleEmergencyForgotPassword = (e) => {
+                e.preventDefault();
+                console.log('Emergency forgot password handler triggered');
+                
+                const username = document.getElementById('reset-username').value;
+                
+                if (!username) {
+                    showToast('Please enter your username', 'error');
+                    return;
+                }
+                
+                const button = e.target.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                }
+                
+                setTimeout(() => {
+                    showToast(`Password reset email would be sent to: ${username}@fileserver.local`, 'info');
+                    showToast('Firebase configuration required for actual email sending', 'warning');
+                    
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Email';
+                    }
+                    
+                    // Clear form and return to login
+                    document.getElementById('reset-username').value = '';
+                    setTimeout(() => {
+                        showLoginForm();
+                    }, 2000);
+                }, 1000);
+            };
+
+            // Emergency register handler
+            const handleEmergencyRegister = (e) => {
+                e.preventDefault();
+                console.log('Emergency register handler triggered');
+                
+                const username = document.getElementById('register-username').value;
+                const name = document.getElementById('register-name').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                if (!username || !name || !password || !confirmPassword) {
+                    showToast('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showToast('Passwords do not match', 'error');
+                    return;
+                }
+                
+                const button = e.target.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                }
+                
+                setTimeout(() => {
+                    showToast('Registration functionality requires Firebase configuration. Check console for Firebase errors.', 'warning');
+                    showToast(`Attempted registration for username: ${username}`, 'info');
+                    
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                    }
+                }, 1000);
+            };
+
+            // Attach emergency event listeners
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleEmergencyLogin);
+                console.log('Emergency login handler attached');
+            }
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', handleEmergencyRegister);
+                console.log('Emergency register handler attached');
+            }
+
+            if (forgotPasswordForm) {
+                forgotPasswordForm.addEventListener('submit', handleEmergencyForgotPassword);
+                console.log('Emergency forgot password handler attached');
+            }
+
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showForgotPasswordForm();
+                });
+                console.log('Forgot password link handler attached');
+            }
+
+            if (backToLoginLink) {
+                backToLoginLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showLoginForm();
+                });
+                console.log('Back to login link handler attached');
+            }
+
+            if (authSwitchLink) {
+                authSwitchLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleAuthMode();
+                });
+                console.log('Auth switch link handler attached');
+            }
+
+            console.log('Emergency auth functionality setup complete!');
+            showToast('Emergency auth system loaded - forms should now be interactive!', 'success');
+        });
+    </script>
+</body>
+</html>
