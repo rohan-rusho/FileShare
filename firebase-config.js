@@ -1,11 +1,6 @@
 // Firebase Configuration
 export const firebaseConfig = {
-    apiKey: "AIzaSyDxasCuJjMMfoQSYf3Ew576l8Htd3Mj898",
-    authDomain: "rusho-s-server-210a6.firebaseapp.com",
-    projectId: "rusho-s-server-210a6",
-    storageBucket: "rusho-s-server-210a6.firebasestorage.app",
-    messagingSenderId: "993549634147",
-    appId: "1:993549634147:web:0398bd92bc63da8c69c656"
+
 };
 
 // Application Configuration
